@@ -6,6 +6,7 @@
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzN-u472lht7RVo-X1qhT4MJoNCeIBUKNexPG7Vu4MyhXHGiNqKFXifpI-uAzZME_aj/exec';
 
 let userData = {};
+let profilSudahDimuat = false;
 
 /* =====================================================
    MASTER DATA
