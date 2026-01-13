@@ -1,6 +1,33 @@
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxVglYinZmuaGYnBR6HD7E-fnQ44qJDS2VKkuCiVtUy6iVUCuCgnTMAeHlKuWPOhpdP/exec';
 
-// Handle submit login
+let pegawaiList = [];
+
+/* =========================
+   LOAD NAMA PEGAWAI (JSONP)
+========================= */
+function handlePegawai(data) {
+  pegawaiList = data;
+  const select = document.getElementById('nama');
+  select.innerHTML = '<option value="">-- Pilih Pegawai --</option>';
+
+  data.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p[0];       // nama_pegawai
+    opt.textContent = p[0];
+    select.appendChild(opt);
+  });
+}
+
+(function loadPegawai() {
+  const script = document.createElement('script');
+  script.src = `${WEB_APP_URL}?action=getPegawai&callback=handlePegawai`;
+  script.onerror = () => Swal.fire('Error', 'Gagal memuat data pegawai', 'error');
+  document.body.appendChild(script);
+})();
+
+/* =========================
+   LOGIN SUBMIT
+========================= */
 document.getElementById('login-form').addEventListener('submit', function (e) {
   e.preventDefault();
 
@@ -34,7 +61,7 @@ document.getElementById('login-form').addEventListener('submit', function (e) {
         return;
       }
 
-      // simpan session login
+      // simpan session SiKaWaN
       localStorage.setItem('sikawan_session', JSON.stringify(res.data));
       localStorage.setItem('loginTime', new Date().toISOString());
 
