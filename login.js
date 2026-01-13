@@ -1,61 +1,56 @@
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyFyJ3e8LTNultPeS828tolLo205uD5gWjv9biN49kgMWWl74twuIZatN08gFDWde8/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxVglYinZmuaGYnBR6HD7E-fnQ44qJDS2VKkuCiVtUy6iVUCuCgnTMAeHlKuWPOhpdP/exec';
 
-let pegawaiList = [];
-
-// JSONP callback untuk load data pegawai
-function handlePegawai(data) {
-  pegawaiList = data;
-  const select = document.getElementById('nama');
-  data.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p[0];
-    opt.textContent = p[0];
-    select.appendChild(opt);
-  });
-}
-
-// Load data pegawai via JSONP
-(function loadPegawai(){
-  const script = document.createElement('script');
-  script.src = `${WEB_APP_URL}?action=getPegawai&callback=handlePegawai`;
-  script.onerror = () => Swal.fire('Error', 'Gagal memuat data pegawai', 'error');
-  document.body.appendChild(script);
-})();
-
-// Login form submit handler
-document.getElementById('login-form').addEventListener('submit', e => {
+// Handle submit login
+document.getElementById('login-form').addEventListener('submit', function (e) {
   e.preventDefault();
+
   const nama = document.getElementById('nama').value;
   const pin = document.getElementById('pin').value;
-  const data = pegawaiList.find(p => p[0] === nama);
 
-  if (!data || pin !== data[7]) {
-    Swal.fire('Gagal', 'PIN salah', 'error');
+  if (!nama || !pin) {
+    Swal.fire('Peringatan', 'Nama dan PIN wajib diisi', 'warning');
     return;
   }
 
   Swal.fire({
-    title: 'Memuat data...',
+    title: 'Memverifikasi...',
     allowOutsideClick: false,
-    didOpen: () => {
-      Swal.showLoading();
-    }
+    didOpen: () => Swal.showLoading()
   });
 
-  const userData = {
-    nama: data[0],
-    nip: data[2],
-    subbid: data[3],
-    status: data[4],
-    golongan: data[5],
-    jabatan: data[6]
-  };
+  const formData = new FormData();
+  formData.append('action', 'login');
+  formData.append('nama', nama);
+  formData.append('pin', pin);
 
-  localStorage.setItem('userData', JSON.stringify(userData));
-  localStorage.setItem('loginTime', new Date().toISOString());
+  fetch(WEB_APP_URL, {
+    method: 'POST',
+    body: formData
+  })
+    .then(res => res.json())
+    .then(res => {
+      if (!res.success) {
+        Swal.fire('Gagal', res.message || 'Login gagal', 'error');
+        return;
+      }
 
-  setTimeout(() => {
-    Swal.close();
-    window.location.href = 'index.html';
-  }, 1000); // simulasi loading
+      // simpan session login
+      localStorage.setItem('sikawan_session', JSON.stringify(res.data));
+      localStorage.setItem('loginTime', new Date().toISOString());
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Login berhasil',
+        timer: 800,
+        showConfirmButton: false
+      });
+
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 800);
+    })
+    .catch(err => {
+      Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+      console.error(err);
+    });
 });
