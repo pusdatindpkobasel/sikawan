@@ -12,11 +12,12 @@ function handlePegawai(data) {
 
   data.forEach(p => {
     const opt = document.createElement('option');
-   opt.value = p[1];        // nama_pegawai
-opt.textContent = p[1]; // nama_pegawai
+    opt.value = p[1];        // nama_pegawai
+    opt.textContent = p[1]; // nama_pegawai
     select.appendChild(opt);
   });
 }
+
 
 (function loadPegawai() {
   const script = document.createElement('script');
