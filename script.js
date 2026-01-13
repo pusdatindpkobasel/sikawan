@@ -1,6 +1,6 @@
 /* =====================================================
-   SIKAWAN - SCRIPT.JS (CLEAN VERSION)
-   Fokus: Auth, Dashboard, Profil Pegawai
+   SIKAWAN - SCRIPT.JS (FINAL & FIXED)
+   Fokus: Auth, Dashboard, Profil Lengkap Pegawai
 ===================================================== */
 
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzN-u472lht7RVo-X1qhT4MJoNCeIBUKNexPG7Vu4MyhXHGiNqKFXifpI-uAzZME_aj/exec';
@@ -61,6 +61,18 @@ window.onload = () => {
 
   userData = JSON.parse(savedSession);
 
+  /* ===============================
+     🔧 NORMALISASI SESSION (KUNCI)
+     =============================== */
+  // Antisipasi session lama / mapping lama
+  userData.id_pegawai =
+    userData.id_pegawai ||
+    userData.idPegawai ||
+    userData.id ||
+    null;
+
+  console.log('SESSION FINAL:', userData);
+
   setupNavigation();
   showPage('beranda');
   displayUserInfo();
@@ -76,15 +88,15 @@ function setupNavigation() {
 
   window.showPage = function (pageId) {
     pages.forEach(p => p.style.display = 'none');
-    document.getElementById(`page-${pageId}`).style.display = 'block';
+    const page = document.getElementById(`page-${pageId}`);
+    if (page) page.style.display = 'block';
 
     menuLinks.forEach(link => {
       link.classList.toggle('active', link.dataset.page === pageId);
     });
 
     if (pageId === 'profil') {
-      loadUserProfile();
-      loadProfilLengkap(); // ✅ INI KUNCI UTAMANYA
+      loadProfilLengkap(); // ⬅️ langsung load dari SHEET
     }
   };
 
@@ -103,50 +115,41 @@ function displayUserInfo() {
   const el = document.getElementById("info-pegawai");
   if (!el) return;
 
+  document.getElementById('nama-pegawai').textContent = userData.nama_pegawai || '-';
+  document.getElementById('status-pegawai').textContent = 'AKTIF';
+
   el.innerHTML = `
-    <div class="row mb-1"><div class="col-4 fw-bold">Nama</div><div class="col-8">${userData.nama_pegawai || '-'}</div></div>
-    <div class="row mb-1"><div class="col-4 fw-bold">Status</div><div class="col-8">${userData.status_kepegawaian || '-'}</div></div>
-    <div class="row mb-1"><div class="col-4 fw-bold">Sub Bidang</div><div class="col-8">${userData.sub_bidang || '-'}</div></div>
-    <div class="row mb-1"><div class="col-4 fw-bold">Role</div><div class="col-8">${userData.role || '-'}</div></div>
+    <div class="row mb-1">
+      <div class="col-4 fw-bold">Nama</div>
+      <div class="col-8">${userData.nama_pegawai || '-'}</div>
+    </div>
+    <div class="row mb-1">
+      <div class="col-4 fw-bold">Status</div>
+      <div class="col-8">${userData.status_kepegawaian || '-'}</div>
+    </div>
+    <div class="row mb-1">
+      <div class="col-4 fw-bold">Sub Bidang</div>
+      <div class="col-8">${userData.sub_bidang || '-'}</div>
+    </div>
+    <div class="row mb-1">
+      <div class="col-4 fw-bold">Role</div>
+      <div class="col-8">${userData.role || '-'}</div>
+    </div>
   `;
 }
 
 /* =====================================================
-   PROFIL BASIC (SESSION)
-===================================================== */
-function loadUserProfile() {
-  document.getElementById('profil-nama').value = userData.nama_pegawai || "";
-  document.getElementById('profil-nip').value = userData.nip || "";
-  document.getElementById('profil-email').value = userData.email || "";
-
-  populateSelect('profil-subbid', masterSubBidang, userData.sub_bidang);
-  populateSelect('profil-status', masterStatusKepegawaian, userData.status_kepegawaian);
-  populateSelect('profil-golongan', masterGolongan, userData.golongan_pangkat);
-  populateSelect('profil-jabatan', masterJabatan, userData.jabatan);
-}
-
-function populateSelect(id, options, selectedValue) {
-  const select = document.getElementById(id);
-  if (!select) return;
-
-  select.innerHTML = "";
-  options.forEach(opt => {
-    const o = document.createElement('option');
-    o.value = opt;
-    o.textContent = opt;
-    if (opt === selectedValue) o.selected = true;
-    select.appendChild(o);
-  });
-}
-
-/* =====================================================
-   PROFIL LENGKAP (FROM SHEET)
+   PROFIL LENGKAP (FROM SHEET data_pegawai)
 ===================================================== */
 function loadProfilLengkap() {
 
   if (!userData.id_pegawai) {
-    console.error('ID Pegawai tidak ada di session', userData);
-    Swal.fire('Error', 'ID Pegawai tidak ditemukan di session login', 'error');
+    console.error('ID Pegawai TIDAK ADA:', userData);
+    Swal.fire(
+      'Error',
+      'ID Pegawai tidak ditemukan di session. Silakan logout dan login ulang.',
+      'error'
+    );
     return;
   }
 
@@ -162,19 +165,19 @@ function loadProfilLengkap() {
 
       const d = res.data;
 
-      // ===== HEADER =====
+      /* ===== HEADER ===== */
       document.getElementById('profil-nama-text').textContent = d.nama || '-';
       document.getElementById('profil-nip-text').textContent = d.nip ? `NIP: ${d.nip}` : 'NIP: -';
       document.getElementById('profil-status-aktif').textContent = d.status_aktif || '-';
 
-      // ===== KEPEGAWAIAN =====
+      /* ===== KEPEGAWAIAN ===== */
       setVal('profil-status', d.status_kepegawaian);
       setVal('profil-golongan', d.golongan_pangkat);
       setVal('profil-jenis-jabatan', d.jenis_jabatan);
       setVal('profil-jabatan', d.jabatan);
       setVal('profil-subbid', d.sub_bidang);
 
-      // ===== PRIBADI =====
+      /* ===== PRIBADI ===== */
       setVal('profil-tempat-lahir', d.tempat_lahir);
       setVal('profil-tanggal-lahir', d.tanggal_lahir);
       setVal('profil-jenis-kelamin', d.jenis_kelamin);
@@ -182,7 +185,7 @@ function loadProfilLengkap() {
       setVal('profil-prodi', d.program_studi);
       setVal('profil-tahun-lulus', d.tahun_lulus);
 
-      // ===== KONTAK =====
+      /* ===== KONTAK ===== */
       setVal('profil-nohp', d.no_hp);
       setVal('profil-email', d.email);
       document.getElementById('profil-alamat').value = d.alamat_lengkap || '';
@@ -191,6 +194,14 @@ function loadProfilLengkap() {
       console.error(err);
       Swal.fire('Error', 'Gagal terhubung ke server', 'error');
     });
+}
+
+/* =====================================================
+   HELPER
+===================================================== */
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val || '-';
 }
 
 /* =====================================================
