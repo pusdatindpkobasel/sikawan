@@ -185,6 +185,51 @@ document.getElementById('profil-form')?.addEventListener('submit', async e => {
 });
 
 /* =====================================================
+   LOAD PROFIL LENGKAP
+===================================================== */
+function loadProfilLengkap() {
+  fetch(`${WEB_APP_URL}?action=getProfilPegawai&id_pegawai=${userData.id_pegawai}`)
+    .then(res => res.json())
+    .then(res => {
+      if (!res.success) {
+        Swal.fire('Error', res.message, 'error');
+        return;
+      }
+
+      const d = res.data;
+
+      // Header
+      document.getElementById('profil-nama-text').textContent = d.nama;
+      document.getElementById('profil-nip-text').textContent = d.nip ? `NIP: ${d.nip}` : 'NIP: -';
+      document.getElementById('profil-status-aktif').textContent = d.status_aktif || '-';
+
+      // Kepegawaian
+      setVal('profil-status', d.status_kepegawaian);
+      setVal('profil-golongan', d.golongan_pangkat);
+      setVal('profil-jenis-jabatan', d.jenis_jabatan);
+      setVal('profil-jabatan', d.jabatan);
+      setVal('profil-subbid', d.sub_bidang);
+
+      // Pribadi
+      setVal('profil-tempat-lahir', d.tempat_lahir);
+      setVal('profil-tanggal-lahir', d.tanggal_lahir);
+      setVal('profil-jenis-kelamin', d.jenis_kelamin);
+      setVal('profil-pendidikan', d.pendidikan_terakhir);
+      setVal('profil-prodi', d.program_studi);
+      setVal('profil-tahun-lulus', d.tahun_lulus);
+
+      // Kontak
+      setVal('profil-nohp', d.no_hp);
+      setVal('profil-email', d.email);
+      document.getElementById('profil-alamat').value = d.alamat_lengkap || '';
+    });
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val || '-';
+}
+/* =====================================================
    LOGOUT
 ===================================================== */
 function logout() {
