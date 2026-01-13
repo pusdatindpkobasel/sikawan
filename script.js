@@ -143,27 +143,54 @@ function populateSelect(id, options, selectedValue) {
    PROFIL LENGKAP (FROM SHEET)
 ===================================================== */
 function loadProfilLengkap() {
-  fetch(`${WEB_APP_URL}?action=getProfilPegawai&id_pegawai=${userData.id_pegawai}`)
+
+  if (!userData.id_pegawai) {
+    console.error('ID Pegawai tidak ada di session', userData);
+    Swal.fire('Error', 'ID Pegawai tidak ditemukan di session login', 'error');
+    return;
+  }
+
+  fetch(`${WEB_APP_URL}?action=getProfilPegawai&id_pegawai=${encodeURIComponent(userData.id_pegawai)}`)
     .then(res => res.json())
     .then(res => {
+      console.log('RESPON PROFIL:', res);
+
       if (!res.success) {
-        Swal.fire('Error', res.message, 'error');
+        Swal.fire('Error', res.message || 'Gagal memuat profil', 'error');
         return;
       }
 
       const d = res.data;
 
-      setVal('profil-email', d.email);
-      setVal('profil-subbid', d.sub_bidang);
+      // ===== HEADER =====
+      document.getElementById('profil-nama-text').textContent = d.nama || '-';
+      document.getElementById('profil-nip-text').textContent = d.nip ? `NIP: ${d.nip}` : 'NIP: -';
+      document.getElementById('profil-status-aktif').textContent = d.status_aktif || '-';
+
+      // ===== KEPEGAWAIAN =====
       setVal('profil-status', d.status_kepegawaian);
       setVal('profil-golongan', d.golongan_pangkat);
+      setVal('profil-jenis-jabatan', d.jenis_jabatan);
       setVal('profil-jabatan', d.jabatan);
-    });
-}
+      setVal('profil-subbid', d.sub_bidang);
 
-function setVal(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.value = val || '';
+      // ===== PRIBADI =====
+      setVal('profil-tempat-lahir', d.tempat_lahir);
+      setVal('profil-tanggal-lahir', d.tanggal_lahir);
+      setVal('profil-jenis-kelamin', d.jenis_kelamin);
+      setVal('profil-pendidikan', d.pendidikan_terakhir);
+      setVal('profil-prodi', d.program_studi);
+      setVal('profil-tahun-lulus', d.tahun_lulus);
+
+      // ===== KONTAK =====
+      setVal('profil-nohp', d.no_hp);
+      setVal('profil-email', d.email);
+      document.getElementById('profil-alamat').value = d.alamat_lengkap || '';
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+    });
 }
 
 /* =====================================================
