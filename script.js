@@ -1,4 +1,4 @@
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyV8JqREbw3C_Q0jnX6KbZXqeB1NFVJ4hdsQL-vOw1IKlTyiO5i7z_uCLGbszW_O4bL/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyJY2JqCr-hUBUzzLIaaIZIyK1rDPrfhXhWXOk6-HVI10m-Gp2rWVCHaX01VvS5fi1r/exec';
 
 let userData = {}, sesiStatus = {};
 const filterBulan = document.getElementById('filter-bulan');
@@ -181,25 +181,25 @@ const masterJabatan = [
 
 window.onload = () => {
   // Cek login user dari localStorage
-  const savedUser = localStorage.getItem('userData');
-  const loginTimeStr = localStorage.getItem('loginTime');
-  const now = new Date();
+  const savedSession = localStorage.getItem('sikawan_session');
+const loginTimeStr = localStorage.getItem('loginTime');
+const now = new Date();
 
-  if (!savedUser || !loginTimeStr) {
-    window.location.href = 'login.html';
-    return;
-  }
+if (!savedSession || !loginTimeStr) {
+  window.location.href = 'login.html';
+  return;
+}
 
-  const loginTime = new Date(loginTimeStr);
-  const diffMinutes = (now - loginTime) / 1000 / 60;
-  if (diffMinutes > 60) {
-    localStorage.removeItem('userData');
-    localStorage.removeItem('loginTime');
-    window.location.href = 'login.html';
-    return;
-  }
+const loginTime = new Date(loginTimeStr);
+const diffMinutes = (now - loginTime) / 1000 / 60;
+if (diffMinutes > 60) {
+  localStorage.removeItem('sikawan_session');
+  localStorage.removeItem('loginTime');
+  window.location.href = 'login.html';
+  return;
+}
 
-  userData = JSON.parse(savedUser);
+userData = JSON.parse(savedSession);
 
   setupNavigation();
 
