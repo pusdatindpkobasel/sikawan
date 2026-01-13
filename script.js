@@ -153,6 +153,17 @@ function loadProfilLengkap() {
     return;
   }
 
+  // ===============================
+  // TAMPILKAN LOADING
+  // ===============================
+  Swal.fire({
+    title: 'Memuat Profil...',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
   fetch(`${WEB_APP_URL}?action=getProfilPegawai&id_pegawai=${encodeURIComponent(userData.id_pegawai)}`)
     .then(res => res.json())
     .then(res => {
@@ -189,12 +200,18 @@ function loadProfilLengkap() {
       setVal('profil-nohp', d.no_hp);
       setVal('profil-email', d.email);
       document.getElementById('profil-alamat').value = d.alamat_lengkap || '';
+
+      // ===============================
+      // TUTUP LOADING (SUKSES)
+      // ===============================
+      Swal.close();
     })
     .catch(err => {
       console.error(err);
       Swal.fire('Error', 'Gagal terhubung ke server', 'error');
     });
 }
+
 
 /* =====================================================
    HELPER
