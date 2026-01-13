@@ -1,4 +1,4 @@
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxVglYinZmuaGYnBR6HD7E-fnQ44qJDS2VKkuCiVtUy6iVUCuCgnTMAeHlKuWPOhpdP/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyJY2JqCr-hUBUzzLIaaIZIyK1rDPrfhXhWXOk6-HVI10m-Gp2rWVCHaX01VvS5fi1r/exec';
 
 let pegawaiList = [];
 
