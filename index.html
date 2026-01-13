@@ -129,52 +129,108 @@ body {
 
 <!-- PROFIL -->
 <section id="page-profil" class="page-content" style="display:none">
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <h5 class="card-title">Profil Lengkap</h5>
 
-      <form id="profil-form" class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Nama Pegawai</label>
-          <input id="profil-nama" class="form-control" readonly>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">NIP</label>
-          <input id="profil-nip" class="form-control" readonly>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Email</label>
-          <input id="profil-email" class="form-control">
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Sub Bidang</label>
-          <select id="profil-subbid" class="form-select"></select>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Status Kepegawaian</label>
-          <select id="profil-status" class="form-select"></select>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Golongan</label>
-          <select id="profil-golongan" class="form-select"></select>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">Jabatan</label>
-          <select id="profil-jabatan" class="form-select"></select>
-        </div>
-
-        <div class="col-12">
-          <button class="btn btn-primary">Simpan Perubahan</button>
-        </div>
-      </form>
+  <!-- Kartu Identitas -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body d-flex align-items-center gap-3">
+      <i class="bi bi-person-circle fs-1 text-primary"></i>
+      <div>
+        <h5 class="mb-0" id="profil-nama-text">-</h5>
+        <small class="text-muted" id="profil-nip-text">NIP: -</small><br>
+        <span class="badge bg-success" id="profil-status-aktif">AKTIF</span>
+      </div>
     </div>
   </div>
+
+  <!-- Data Kepegawaian -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header fw-semibold">
+      <i class="bi bi-briefcase"></i> Data Kepegawaian
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Status Kepegawaian</label>
+          <input id="profil-status" class="form-control" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Golongan Pangkat</label>
+          <input id="profil-golongan" class="form-control" readonly>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Jenis Jabatan</label>
+          <input id="profil-jenis-jabatan" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Jabatan</label>
+          <input id="profil-jabatan" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Sub Bidang</label>
+          <input id="profil-subbid" class="form-control" readonly>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Pribadi -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header fw-semibold">
+      <i class="bi bi-person-vcard"></i> Data Pribadi
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Tempat Lahir</label>
+          <input id="profil-tempat-lahir" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Tanggal Lahir</label>
+          <input id="profil-tanggal-lahir" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Jenis Kelamin</label>
+          <input id="profil-jenis-kelamin" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Pendidikan Terakhir</label>
+          <input id="profil-pendidikan" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Program Studi</label>
+          <input id="profil-prodi" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Tahun Lulus</label>
+          <input id="profil-tahun-lulus" class="form-control" readonly>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kontak -->
+  <div class="card shadow-sm">
+    <div class="card-header fw-semibold">
+      <i class="bi bi-telephone"></i> Kontak
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">No. HP</label>
+          <input id="profil-nohp" class="form-control" readonly>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input id="profil-email" class="form-control" readonly>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Alamat Lengkap</label>
+          <textarea id="profil-alamat" class="form-control" rows="2" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </section>
 
 <!-- RIWAYAT -->
