@@ -77,6 +77,12 @@ window.onload = () => {
   showPage('beranda');
   displayUserInfo();
   setLogoutButton();
+
+  /* ===============================
+     ⚡ PRELOAD PROFIL LENGKAP
+     =============================== */
+  // Supaya saat klik menu Profil tidak terasa lambat
+  loadProfilLengkap();
 };
 
 /* =====================================================
