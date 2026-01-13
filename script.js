@@ -85,8 +85,9 @@ function setupNavigation() {
     });
 
     if (pageId === 'profil') {
-      loadUserProfile();
-    }
+  loadUserProfile();     // isi dropdown & basic
+  loadProfilLengkap();   // 🔥 AMBIL DATA LENGKAP DARI SHEET
+}
   };
 
   menuLinks.forEach(link => {
