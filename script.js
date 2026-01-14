@@ -77,6 +77,7 @@ window.onload = () => {
   setupNavigation();
   showPage('beranda');
   displayUserInfo();
+   initUploadFoto();
   setLogoutButton();
 
   /* ===============================
