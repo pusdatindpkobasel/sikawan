@@ -251,3 +251,50 @@ function logout() {
 function setLogoutButton() {
   document.getElementById('logout-button')?.addEventListener('click', logout);
 }
+/* =====================================================
+   UPLOAD FOTO PROFIL
+===================================================== */
+document.getElementById('input-foto')?.addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function () {
+
+    Swal.fire({
+      title: 'Mengunggah foto...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading()
+    });
+
+    const formData = new FormData();
+    formData.append('action', 'uploadFoto');
+    formData.append('id_pegawai', userData.id_pegawai);
+    formData.append('base64', reader.result);
+
+    fetch(WEB_APP_URL, {
+      method: 'POST',
+      body: formData
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (!res.success) {
+          Swal.fire('Gagal', res.message || 'Upload gagal', 'error');
+          return;
+        }
+
+        // update foto di UI & session
+        document.getElementById('foto-pegawai').src = res.foto_url;
+        userData.foto_url = res.foto_url;
+        localStorage.setItem('sikawan_session', JSON.stringify(userData));
+
+        Swal.fire('Berhasil', 'Foto profil diperbarui', 'success');
+      })
+      .catch(() => {
+        Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+      });
+  };
+
+  reader.readAsDataURL(file);
+});
+
