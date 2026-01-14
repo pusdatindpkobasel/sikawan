@@ -77,7 +77,7 @@ window.onload = () => {
   setupNavigation();
   showPage('beranda');
   displayUserInfo();
-   initUploadFoto();
+  initUploadFoto();
   setLogoutButton();
 
   /* ===============================
@@ -256,6 +256,23 @@ function setLogoutButton() {
    UPLOAD FOTO PROFIL
 ===================================================== */
 function initUploadFoto() {
+const btnEdit = document.getElementById('btn-edit-foto');
+
+btnEdit.onclick = () => {
+  if (userData.foto_url) {
+    Swal.fire({
+      title: 'Ganti foto profil?',
+      text: 'Foto lama akan diganti',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Ya, ganti'
+    }).then(r => {
+      if (r.isConfirmed) inputFoto.click();
+    });
+  } else {
+    inputFoto.click();
+  }
+};
   const inputFoto = document.getElementById('input-foto');
   const fotoEl = document.getElementById('foto-pegawai');
 
