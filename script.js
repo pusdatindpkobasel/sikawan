@@ -254,18 +254,20 @@ function setLogoutButton() {
 /* =====================================================
    UPLOAD FOTO PROFIL
 ===================================================== */
-document.getElementById('input-foto')?.addEventListener('change', function () {
-  const file = this.files[0];
-  if (!file) return;
+function initUploadFoto() {
+  const inputFoto = document.getElementById('input-foto');
+  const fotoEl = document.getElementById('foto-pegawai');
 
-  // validasi sederhana
-  if (!file.type.startsWith('image/')) {
-    Swal.fire('Error', 'File harus berupa gambar', 'error');
-    return;
-  }
+  if (!inputFoto || !fotoEl) return;
 
-  const reader = new FileReader();
-  reader.onload = function () {
+  inputFoto.onchange = function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      Swal.fire('Error', 'File harus berupa gambar', 'error');
+      return;
+    }
 
     Swal.fire({
       title: 'Mengunggah Foto...',
@@ -273,36 +275,32 @@ document.getElementById('input-foto')?.addEventListener('change', function () {
       didOpen: () => Swal.showLoading()
     });
 
-    const formData = new FormData();
-    formData.append('action', 'uploadFoto');
-    formData.append('id_pegawai', userData.id_pegawai);
-    formData.append('base64', reader.result);
+    const reader = new FileReader();
+    reader.onload = function () {
+      const formData = new FormData();
+      formData.append('action', 'uploadFoto');
+      formData.append('id_pegawai', userData.id_pegawai);
+      formData.append('base64', reader.result);
 
-    fetch(WEB_APP_URL, {
-      method: 'POST',
-      body: formData
-    })
-      .then(res => res.json())
-      .then(res => {
-        if (!res.success) {
-          Swal.fire('Gagal', res.message || 'Upload gagal', 'error');
-          return;
-        }
+      fetch(WEB_APP_URL, { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(res => {
+          if (!res.success) {
+            Swal.fire('Gagal', res.message || 'Upload gagal', 'error');
+            return;
+          }
 
-        // update UI & session
-        const fotoEl = document.getElementById('foto-pegawai');
-        if (fotoEl) fotoEl.src = res.foto_url;
+          fotoEl.src = res.foto_url;
+          userData.foto_url = res.foto_url;
+          localStorage.setItem('sikawan_session', JSON.stringify(userData));
 
-        userData.foto_url = res.foto_url;
-        localStorage.setItem('sikawan_session', JSON.stringify(userData));
+          Swal.fire('Berhasil', 'Foto profil diperbarui', 'success');
+        })
+        .catch(() => {
+          Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+        });
+    };
 
-        Swal.fire('Berhasil', 'Foto profil diperbarui', 'success');
-      })
-      .catch(err => {
-        console.error(err);
-        Swal.fire('Error', 'Gagal terhubung ke server', 'error');
-      });
+    reader.readAsDataURL(file);
   };
-
-  reader.readAsDataURL(file);
-});
+}
