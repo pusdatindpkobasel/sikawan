@@ -258,11 +258,17 @@ document.getElementById('input-foto')?.addEventListener('change', function () {
   const file = this.files[0];
   if (!file) return;
 
+  // validasi sederhana
+  if (!file.type.startsWith('image/')) {
+    Swal.fire('Error', 'File harus berupa gambar', 'error');
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = function () {
 
     Swal.fire({
-      title: 'Mengunggah foto...',
+      title: 'Mengunggah Foto...',
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading()
     });
@@ -283,18 +289,20 @@ document.getElementById('input-foto')?.addEventListener('change', function () {
           return;
         }
 
-        // update foto di UI & session
-        document.getElementById('foto-pegawai').src = res.foto_url;
+        // update UI & session
+        const fotoEl = document.getElementById('foto-pegawai');
+        if (fotoEl) fotoEl.src = res.foto_url;
+
         userData.foto_url = res.foto_url;
         localStorage.setItem('sikawan_session', JSON.stringify(userData));
 
         Swal.fire('Berhasil', 'Foto profil diperbarui', 'success');
       })
-      .catch(() => {
+      .catch(err => {
+        console.error(err);
         Swal.fire('Error', 'Gagal terhubung ke server', 'error');
       });
   };
 
   reader.readAsDataURL(file);
 });
-
