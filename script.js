@@ -143,6 +143,11 @@ function displayUserInfo() {
       <div class="col-8">${userData.role || '-'}</div>
     </div>
   `;
+   // Foto Pegawai
+const fotoEl = document.getElementById('foto-pegawai');
+if (fotoEl) {
+  fotoEl.src = userData.foto_url || 'https://via.placeholder.com/120';
+}
 }
 
 /* =====================================================
