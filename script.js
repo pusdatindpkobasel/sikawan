@@ -62,10 +62,6 @@ window.onload = () => {
 
   userData = JSON.parse(savedSession);
 
-  /* ===============================
-     🔧 NORMALISASI SESSION (KUNCI)
-     =============================== */
-  // Antisipasi session lama / mapping lama
   userData.id_pegawai =
     userData.id_pegawai ||
     userData.idPegawai ||
@@ -76,9 +72,11 @@ window.onload = () => {
 
   setupNavigation();
   showPage('beranda');
-  displayUserInfo();
-  initUploadFoto();
+  displayUserInfo();   // ⬅️ initUploadFoto akan dipanggil DI SINI
   setLogoutButton();
+
+  loadProfilLengkap();
+};
 
   /* ===============================
      ⚡ PRELOAD PROFIL LENGKAP
@@ -123,7 +121,9 @@ function displayUserInfo() {
   const el = document.getElementById("info-pegawai");
   if (!el) return;
 
-  document.getElementById('nama-pegawai').textContent = userData.nama_pegawai || '-';
+  document.getElementById('nama-pegawai').textContent =
+    userData.nama_pegawai || '-';
+
   document.getElementById('status-pegawai').textContent = 'AKTIF';
 
   el.innerHTML = `
@@ -144,11 +144,15 @@ function displayUserInfo() {
       <div class="col-8">${userData.role || '-'}</div>
     </div>
   `;
-   // Foto Pegawai
-const fotoEl = document.getElementById('foto-pegawai');
-if (fotoEl) {
-  fotoEl.src = userData.foto_url || 'https://via.placeholder.com/120';
-}
+
+  // ==== FOTO PEGAWAI ====
+  const fotoEl = document.getElementById('foto-pegawai');
+  if (fotoEl) {
+    fotoEl.src = userData.foto_url || 'https://via.placeholder.com/120';
+  }
+
+  // ⬅️ FIX 2: pasang event upload SETELAH elemen ada
+  initUploadFoto();
 }
 
 /* =====================================================
@@ -256,28 +260,30 @@ function setLogoutButton() {
    UPLOAD FOTO PROFIL
 ===================================================== */
 function initUploadFoto() {
-const btnEdit = document.getElementById('btn-edit-foto');
-
-btnEdit.onclick = () => {
-  if (userData.foto_url) {
-    Swal.fire({
-      title: 'Ganti foto profil?',
-      text: 'Foto lama akan diganti',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Ya, ganti'
-    }).then(r => {
-      if (r.isConfirmed) inputFoto.click();
-    });
-  } else {
-    inputFoto.click();
-  }
-};
   const inputFoto = document.getElementById('input-foto');
-  const fotoEl = document.getElementById('foto-pegawai');
+  const fotoEl   = document.getElementById('foto-pegawai');
+  const btnEdit  = document.getElementById('btn-edit-foto');
 
-  if (!inputFoto || !fotoEl) return;
+  if (!inputFoto || !fotoEl || !btnEdit) return;
 
+  // Klik icon pensil
+  btnEdit.onclick = () => {
+    if (userData.foto_url) {
+      Swal.fire({
+        title: 'Ganti foto profil?',
+        text: 'Foto lama akan diganti',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, ganti'
+      }).then(r => {
+        if (r.isConfirmed) inputFoto.click();
+      });
+    } else {
+      inputFoto.click();
+    }
+  };
+
+  // Saat file dipilih
   inputFoto.onchange = function () {
     const file = this.files[0];
     if (!file) return;
@@ -300,7 +306,10 @@ btnEdit.onclick = () => {
       formData.append('id_pegawai', userData.id_pegawai);
       formData.append('base64', reader.result);
 
-      fetch(WEB_APP_URL, { method: 'POST', body: formData })
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: formData
+      })
         .then(res => res.json())
         .then(res => {
           if (!res.success) {
