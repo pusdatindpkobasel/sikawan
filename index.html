@@ -94,39 +94,47 @@ body {
 <!-- BERANDA -->
 <section id="page-beranda" class="page-content">
   <div class="row g-4">
+
+    <!-- CARD PROFIL -->
     <div class="col-lg-4">
       <div class="card shadow-sm">
-        <div class="card-body text-center"
-<div class="position-relative d-inline-block">
-  <img
-    id="foto-pegawai"
-    src="https://via.placeholder.com/120"
-    class="rounded-circle"
-    style="width:120px;height:120px;object-fit:cover;border:3px solid #0d6efd;"
-  />
+        <div class="card-body text-center">
 
-  <button
-    id="btn-edit-foto"
-    class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle"
-    style="width:32px;height:32px;"
-    title="Ubah Foto"
-  >
-    <i class="bi bi-pencil"></i>
-  </button>
+          <!-- FOTO + EDIT -->
+          <div class="position-relative d-inline-block mb-2">
+            <img
+              id="foto-pegawai"
+              src="https://via.placeholder.com/120"
+              class="rounded-circle"
+              style="width:120px;height:120px;object-fit:cover;border:3px solid #0d6efd;"
+            />
 
-  <input
-    type="file"
-    id="input-foto"
-    accept="image/*"
-    hidden
-  />
-</div>
+            <button
+              id="btn-edit-foto"
+              class="btn btn-sm btn-primary position-absolute bottom-0 end-0 rounded-circle"
+              style="width:32px;height:32px;"
+              title="Ubah Foto"
+            >
+              <i class="bi bi-pencil"></i>
+            </button>
+
+            <input
+              type="file"
+              id="input-foto"
+              accept="image/*"
+              hidden
+            />
+          </div>
+
+          <!-- NAMA & STATUS -->
           <h5 class="mt-2" id="nama-pegawai">-</h5>
           <span class="badge bg-success" id="status-pegawai">AKTIF</span>
+
         </div>
       </div>
     </div>
 
+    <!-- CARD RINGKASAN -->
     <div class="col-lg-8">
       <div class="card shadow-sm">
         <div class="card-body">
@@ -135,8 +143,10 @@ body {
         </div>
       </div>
     </div>
+
   </div>
 </section>
+
 
 <!-- DATA PEGAWAI -->
 <section id="page-data-pegawai" class="page-content" style="display:none">
