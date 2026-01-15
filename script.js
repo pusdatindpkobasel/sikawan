@@ -3,7 +3,7 @@
    Fokus: Auth, Dashboard, Profil Lengkap Pegawai
 ===================================================== */
 
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzN-u472lht7RVo-X1qhT4MJoNCeIBUKNexPG7Vu4MyhXHGiNqKFXifpI-uAzZME_aj/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyWqBTVSrsxeMsGu1199XgqoZ6BMHyPNEtnTKNTwF75tsmy8HPWbnNVlYT8mvlbsJW7/exec';
 
 let userData = {};
 let profilSudahDimuat = false;
