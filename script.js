@@ -146,7 +146,7 @@ function displayUserInfo() {
   // ==== FOTO PEGAWAI ====
   const fotoEl = document.getElementById('foto-pegawai');
   if (fotoEl) {
-    fotoEl.src = userData.foto_url || 'https://via.placeholder.com/120';
+    fotoEl.src = userData.foto_url + '?t=' + new Date().getTime();
   }
 
   // ⬅️ FIX 2: pasang event upload SETELAH elemen ada
@@ -319,7 +319,7 @@ function initUploadFoto() {
             return;
           }
 
-          fotoEl.src = res.foto_url;
+          fotoEl.src = userData.foto_url + '?t=' + new Date().getTime();
           userData.foto_url = res.foto_url;
           localStorage.setItem('sikawan_session', JSON.stringify(userData));
 
