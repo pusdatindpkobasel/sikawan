@@ -157,7 +157,11 @@ function displayUserInfo() {
    PROFIL LENGKAP (FROM SHEET data_pegawai)
 ===================================================== */
 function loadProfilLengkap() {
-
+   const profilFoto = document.getElementById('profil-foto');
+if (profilFoto && d.foto_url) {
+  profilFoto.src = d.foto_url + '?t=' + Date.now();
+}
+   
   if (!userData.id_pegawai) {
     console.error('ID Pegawai TIDAK ADA:', userData);
     Swal.fire(
