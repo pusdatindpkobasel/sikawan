@@ -48,11 +48,13 @@ window.onload = () => {
   const savedSession = localStorage.getItem('sikawan_session');
   const loginTimeStr = localStorage.getItem('loginTime');
 
+  // ⛔ BELUM LOGIN
   if (!savedSession || !loginTimeStr) {
     window.location.href = 'login.html';
     return;
   }
 
+  // ⛔ SESSION EXPIRED
   const diffMinutes = (new Date() - new Date(loginTimeStr)) / 60000;
   if (diffMinutes > 60) {
     localStorage.clear();
@@ -60,8 +62,10 @@ window.onload = () => {
     return;
   }
 
+  // ✅ SESSION VALID
   userData = JSON.parse(savedSession);
 
+  // 🔧 Normalisasi ID Pegawai
   userData.id_pegawai =
     userData.id_pegawai ||
     userData.idPegawai ||
@@ -72,19 +76,13 @@ window.onload = () => {
 
   setupNavigation();
   showPage('beranda');
-  displayUserInfo();   // ⬅️ initUploadFoto akan dipanggil DI SINI
+  displayUserInfo();
+  initUploadFoto();
   setLogoutButton();
 
+  // preload profil (AMAN, TIDAK DUPLIKAT)
   loadProfilLengkap();
 };
-
-  /* ===============================
-     ⚡ PRELOAD PROFIL LENGKAP
-     =============================== */
-  // Supaya saat klik menu Profil tidak terasa lambat
-  loadProfilLengkap();
-};
-
 /* =====================================================
    NAVIGATION
 ===================================================== */
