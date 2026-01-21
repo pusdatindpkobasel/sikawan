@@ -1,6 +1,6 @@
 /* =====================================================
-   SIKAWAN - SCRIPT.JS (STABLE & SAFE)
-   ❗ TIDAK MERUSAK dashboard.html
+   SIKAWAN - SCRIPT.JS (STABLE, SAFE, COMPATIBLE)
+   ❗ TIDAK MERUSAK dashboard.html ASLI
 ===================================================== */
 
 const WEB_APP_URL =
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initUploadFoto();
 });
 
-/* ================= NAVIGATION (AMAN) ================= */
+/* ================= NAVIGATION ================= */
 function setupNavigation() {
   const sidebar = document.getElementById('sidebar');
   const content = document.getElementById('content');
@@ -52,7 +52,7 @@ function setupNavigation() {
       l.classList.toggle('active', l.dataset.page === page)
     );
 
-    // auto close sidebar (mobile)
+    // mobile UX: auto close sidebar
     sidebar.classList.remove('show');
 
     if (page === 'profil' && !profilLoaded) {
@@ -67,7 +67,6 @@ function setupNavigation() {
     });
   });
 
-  // klik area konten → tutup sidebar (mobile UX)
   content.addEventListener('click', () => {
     sidebar.classList.remove('show');
   });
