@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SIKawan</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Segoe UI", sans-serif;
+      background: #f4f6f9;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <div>Memuat SIKawan...</div>
+
+  <script>
+    (function () {
+      const session = localStorage.getItem('sikawan_session');
+      const loginTime = localStorage.getItem('loginTime');
+
+      if (!session || !loginTime) {
+        window.location.replace('login.html');
+        return;
+      }
+
+      const diffMinutes =
+        (new Date() - new Date(loginTime)) / 60000;
+
+      if (diffMinutes > 60) {
+        localStorage.clear();
+        window.location.replace('login.html');
+        return;
+      }
+
+      // SESSION VALID
+      window.location.replace('index.html');
+    })();
+  </script>
+
+</body>
+</html>
