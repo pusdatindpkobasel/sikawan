@@ -1,185 +1,101 @@
-/* =====================================================
-   SIKAWAN - SCRIPT.JS (FINAL CLEAN & FAST)
-   - Session Guard
-   - Responsive Sidebar
-   - Profil Lengkap
-   - Upload + Crop Foto
-   - Skeleton Loader
-===================================================== */
-
 const WEB_APP_URL =
   'https://script.google.com/macros/s/AKfycbwqgrp-WPmhpaXaaEZVDPNfLTZyqvJEcxIqa3nTNY62BK5Ip8DT20dQE-bXphTAtkMz/exec';
 
 let userData = {};
-let profilLoaded = false;
-let cropper = null;
+let cropper;
 
-/* =====================================================
-   SESSION GUARD
-===================================================== */
+/* ================= SESSION GUARD ================= */
 document.addEventListener('DOMContentLoaded', () => {
   const session = localStorage.getItem('sikawan_session');
   const loginTime = localStorage.getItem('loginTime');
 
-  if (!session || !loginTime) {
-    location.href = 'login.html';
-    return;
-  }
-
+  if (!session || !loginTime) return location.href = 'login.html';
   if ((Date.now() - new Date(loginTime)) / 60000 > 60) {
     localStorage.clear();
-    location.href = 'login.html';
-    return;
+    return location.href = 'login.html';
   }
 
   userData = JSON.parse(session);
-  userData.id_pegawai =
-    userData.id_pegawai || userData.idPegawai || userData.id || null;
+  userData.id_pegawai ||= userData.id || null;
 
   initSidebar();
   renderDashboard();
   initUploadFoto();
 });
 
-/* =====================================================
-   SIDEBAR RESPONSIVE (SiPeKaH-like)
-===================================================== */
+/* ================= SIDEBAR UX FIX ================= */
 function initSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const hamburger = document.getElementById('hamburger');
   const links = document.querySelectorAll('#sidebar-menu a');
   const pages = document.querySelectorAll('.page-content');
 
-  window.showPage = page => {
-    pages.forEach(p => (p.style.display = 'none'));
-    document.getElementById(`page-${page}`).style.display = 'block';
-
-    links.forEach(l =>
-      l.classList.toggle('active', l.dataset.page === page)
-    );
-
-    if (page === 'profil' && !profilLoaded) loadProfilLengkap();
-  };
+  hamburger.onclick = () => sidebar.classList.toggle('show');
 
   links.forEach(link => {
     link.onclick = e => {
       e.preventDefault();
-      showPage(link.dataset.page);
+      const page = link.dataset.page;
+
+      pages.forEach(p => p.style.display = 'none');
+      document.getElementById(`page-${page}`).style.display = 'block';
+
+      links.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      sidebar.classList.remove('show'); // ✅ AUTO CLOSE
     };
   });
 
-  showPage('beranda');
+  document.getElementById('content').onclick = () =>
+    sidebar.classList.remove('show');
+
+  links[0].click();
 }
 
-/* =====================================================
-   DASHBOARD
-===================================================== */
+/* ================= DASHBOARD ================= */
 function renderDashboard() {
-  document.getElementById('nama-pegawai').textContent =
-    userData.nama_pegawai || '-';
-  document.getElementById('status-pegawai').textContent = 'AKTIF';
+  document.getElementById('nama-pegawai').textContent = userData.nama_pegawai || '-';
 
   document.getElementById('info-pegawai').innerHTML = `
-    <div class="row mb-1"><div class="col-4 fw-bold">Nama</div><div class="col-8">${userData.nama_pegawai || '-'}</div></div>
-    <div class="row mb-1"><div class="col-4 fw-bold">Status</div><div class="col-8">${userData.status_kepegawaian || '-'}</div></div>
-    <div class="row mb-1"><div class="col-4 fw-bold">Sub Bidang</div><div class="col-8">${userData.sub_bidang || '-'}</div></div>
-    <div class="row mb-1"><div class="col-4 fw-bold">Role</div><div class="col-8">${userData.role || '-'}</div></div>
+    <div>Sub Bidang: ${userData.sub_bidang || '-'}</div>
+    <div>Status: ${userData.status_kepegawaian || '-'}</div>
   `;
 
   setFoto('foto-pegawai', userData.foto_url);
 }
 
-/* =====================================================
-   PROFIL LENGKAP
-===================================================== */
-function loadProfilLengkap() {
-  if (!userData.id_pegawai) return;
-
-  showSkeletonProfil(true);
-
-  fetch(
-    `${WEB_APP_URL}?action=getProfilPegawai&id_pegawai=${encodeURIComponent(
-      userData.id_pegawai
-    )}`
-  )
-    .then(r => r.json())
-    .then(r => {
-      if (!r.success) return;
-
-      const d = r.data;
-      profilLoaded = true;
-
-      document.getElementById('profil-nama-text').textContent = d.nama || '-';
-      document.getElementById('profil-nip-text').textContent =
-        d.nip ? `NIP: ${d.nip}` : 'NIP: -';
-      document.getElementById('profil-status-aktif').textContent =
-        d.status_aktif || '-';
-
-      setFoto('profil-foto', d.foto_url);
-
-      fill('profil-status', d.status_kepegawaian);
-      fill('profil-golongan', d.golongan_pangkat);
-      fill('profil-jenis-jabatan', d.jenis_jabatan);
-      fill('profil-jabatan', d.jabatan);
-      fill('profil-subbid', d.sub_bidang);
-
-      fill('profil-tempat-lahir', d.tempat_lahir);
-      fill('profil-tanggal-lahir', d.tanggal_lahir);
-      fill('profil-jenis-kelamin', d.jenis_kelamin);
-      fill('profil-pendidikan', d.pendidikan_terakhir);
-      fill('profil-prodi', d.program_studi);
-      fill('profil-tahun-lulus', d.tahun_lulus);
-
-      fill('profil-nohp', d.no_hp);
-      fill('profil-email', d.email);
-      document.getElementById('profil-alamat').value =
-        d.alamat_lengkap || '';
-
-      showSkeletonProfil(false);
-    });
-}
-
-/* =====================================================
-   FOTO PROFIL + CROP
-===================================================== */
+/* ================= FOTO + CROP ================= */
 function initUploadFoto() {
-  const btn = document.getElementById('btn-edit-foto');
   const input = document.getElementById('input-foto');
-
-  if (!btn || !input) return;
+  const btn = document.getElementById('btn-edit-foto');
 
   btn.onclick = () => input.click();
 
   input.onchange = () => {
     const file = input.files[0];
-    if (!file || !file.type.startsWith('image/')) return;
+    if (!file) return;
 
-    openCropper(file);
+    const reader = new FileReader();
+    reader.onload = () => openCrop(reader.result);
+    reader.readAsDataURL(file);
   };
 }
 
-function openCropper(file) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    Swal.fire({
-      title: 'Potong Foto',
-      html: `<img id="crop-img" src="${reader.result}" style="max-width:100%">`,
-      showCancelButton: true,
-      confirmButtonText: 'Simpan',
-      didOpen: () => {
-        cropper = new Cropper(document.getElementById('crop-img'), {
-          aspectRatio: 1,
-          viewMode: 1
-        });
-      }
-    }).then(res => {
-      if (res.isConfirmed) {
-        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
-        uploadFoto(canvas.toDataURL());
-      }
-      cropper.destroy();
-      cropper = null;
-    });
-  };
-  reader.readAsDataURL(file);
+function openCrop(src) {
+  const img = document.createElement('img');
+  img.src = src;
+
+  cropper = new Cropper(img, { aspectRatio: 1 });
+
+  document.body.appendChild(img);
+
+  setTimeout(() => {
+    const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+    cropper.destroy();
+    img.remove();
+    uploadFoto(canvas.toDataURL());
+  }, 300);
 }
 
 function uploadFoto(base64) {
@@ -192,45 +108,20 @@ function uploadFoto(base64) {
     .then(r => r.json())
     .then(r => {
       if (!r.success) return;
-
       userData.foto_url = r.foto_url;
       localStorage.setItem('sikawan_session', JSON.stringify(userData));
-
       setFoto('foto-pegawai', r.foto_url);
-      setFoto('profil-foto', r.foto_url);
     });
 }
 
-/* =====================================================
-   SKELETON LOADER
-===================================================== */
-function showSkeletonProfil(show) {
-  document
-    .querySelectorAll('#page-profil input, #page-profil textarea')
-    .forEach(el => {
-      el.style.visibility = show ? 'hidden' : 'visible';
-    });
-}
-
-/* =====================================================
-   HELPER
-===================================================== */
-function fill(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.value = val || '-';
-}
-
+/* ================= HELPER ================= */
 function setFoto(id, url) {
-  const img = document.getElementById(id);
-  if (img) {
-    img.src = url ? `${url}?t=${Date.now()}` : 'https://via.placeholder.com/120';
-  }
+  document.getElementById(id).src =
+    url ? `${url}?t=${Date.now()}` : 'https://via.placeholder.com/120';
 }
 
-/* =====================================================
-   LOGOUT
-===================================================== */
-document.getElementById('logout-button')?.addEventListener('click', () => {
+/* ================= LOGOUT ================= */
+document.getElementById('logout-button').onclick = () => {
   localStorage.clear();
   location.href = 'login.html';
-});
+};
