@@ -79,10 +79,50 @@ body {
   opacity: 1;
   transform: scale(1.05);
 }
+  /* ===== MOBILE SIDEBAR ===== */
+#hamburger {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  #sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    z-index: 1050;
+    transition: left 0.3s ease;
+  }
+
+  #sidebar.show {
+    left: 0;
+  }
+
+  #content {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  #hamburger {
+    display: inline-block;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    background: #0d6efd;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 6px 10px;
+  }
+}
+
 </style>
 </head>
 
 <body>
+<button id="hamburger">
+  <i class="bi bi-list"></i>
+</button>
 
 <!-- SIDEBAR -->
 <aside id="sidebar">
@@ -301,7 +341,11 @@ body {
 </section>
 
 </main>
-
+<script>
+document.getElementById('hamburger')?.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('show');
+});
+</script>
 <script src="script.js"></script>
 </body>
 </html>
