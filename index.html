@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SIKawan</title>
-
   <style>
     body {
       margin: 0;
@@ -32,9 +31,7 @@
         return;
       }
 
-      const diffMinutes =
-        (new Date() - new Date(loginTime)) / 60000;
-
+      const diffMinutes = (new Date() - new Date(loginTime)) / 60000;
       if (diffMinutes > 60) {
         localStorage.clear();
         window.location.replace('login.html');
@@ -42,7 +39,7 @@
       }
 
       // SESSION VALID
-      window.location.replace('index.html');
+      window.location.replace('dashboard.html');
     })();
   </script>
 
