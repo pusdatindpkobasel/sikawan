@@ -74,7 +74,7 @@ document.getElementById('login-form').addEventListener('submit', function (e) {
       });
 
       setTimeout(() => {
-        window.location.href = 'index.html';
+        window.location.href = 'dashboard.html';
       }, 800);
     })
     .catch(err => {
