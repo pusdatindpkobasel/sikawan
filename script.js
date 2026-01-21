@@ -1,335 +1,236 @@
 /* =====================================================
-   SIKAWAN - SCRIPT.JS (FINAL & FIXED)
-   Fokus: Auth, Dashboard, Profil Lengkap Pegawai
+   SIKAWAN - SCRIPT.JS (FINAL CLEAN & FAST)
+   - Session Guard
+   - Responsive Sidebar
+   - Profil Lengkap
+   - Upload + Crop Foto
+   - Skeleton Loader
 ===================================================== */
 
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyWqBTVSrsxeMsGu1199XgqoZ6BMHyPNEtnTKNTwF75tsmy8HPWbnNVlYT8mvlbsJW7/exec';
+const WEB_APP_URL =
+  'https://script.google.com/macros/s/AKfycbwqgrp-WPmhpaXaaEZVDPNfLTZyqvJEcxIqa3nTNY62BK5Ip8DT20dQE-bXphTAtkMz/exec';
 
 let userData = {};
-let profilSudahDimuat = false;
+let profilLoaded = false;
+let cropper = null;
 
 /* =====================================================
-   MASTER DATA
+   SESSION GUARD
 ===================================================== */
-const masterSubBidang = [
-  "Dinas",
-  "Sekretariat",
-  "Subbagian Umum dan Kepegawaian",
-  "Bidang Pemasaran Pariwisata & Ekraf",
-  "Bidang Pengembangan Destinasi Pariwisata",
-  "Bidang Kepemudaan dan Olahraga"
-];
+document.addEventListener('DOMContentLoaded', () => {
+  const session = localStorage.getItem('sikawan_session');
+  const loginTime = localStorage.getItem('loginTime');
 
-const masterStatusKepegawaian = [
-  "PNS",
-  "PPPK",
-  "PPPK PARUH WAKTU",
-  "PJLP"
-];
-
-const masterGolongan = [
-  "II/a","II/b","II/c","II/d",
-  "III/a","III/b","III/c","III/d",
-  "IV/a","IV/b"
-];
-
-const masterJabatan = [
-  "Staff",
-  "Kepala Subbagian",
-  "Kepala Bidang",
-  "Sekretaris",
-  "Kepala Dinas"
-];
-
-/* =====================================================
-   AUTH & SESSION GUARD
-===================================================== */
-window.onload = () => {
-  const savedSession = localStorage.getItem('sikawan_session');
-  const loginTimeStr = localStorage.getItem('loginTime');
-
-  // ⛔ BELUM LOGIN
-  if (!savedSession || !loginTimeStr) {
-    window.location.href = 'login.html';
+  if (!session || !loginTime) {
+    location.href = 'login.html';
     return;
   }
 
-  // ⛔ SESSION EXPIRED
-  const diffMinutes = (new Date() - new Date(loginTimeStr)) / 60000;
-  if (diffMinutes > 60) {
+  if ((Date.now() - new Date(loginTime)) / 60000 > 60) {
     localStorage.clear();
-    window.location.href = 'login.html';
+    location.href = 'login.html';
     return;
   }
 
-  // ✅ SESSION VALID
-  userData = JSON.parse(savedSession);
-
-  // 🔧 Normalisasi ID Pegawai
+  userData = JSON.parse(session);
   userData.id_pegawai =
-    userData.id_pegawai ||
-    userData.idPegawai ||
-    userData.id ||
-    null;
+    userData.id_pegawai || userData.idPegawai || userData.id || null;
 
-  console.log('SESSION FINAL:', userData);
-
-  setupNavigation();
-  showPage('beranda');
-  displayUserInfo();
+  initSidebar();
+  renderDashboard();
   initUploadFoto();
-  setLogoutButton();
+});
 
-  // preload profil (AMAN, TIDAK DUPLIKAT)
-  loadProfilLengkap();
-};
 /* =====================================================
-   NAVIGATION
+   SIDEBAR RESPONSIVE (SiPeKaH-like)
 ===================================================== */
-function setupNavigation() {
-  const menuLinks = document.querySelectorAll('#sidebar-menu a');
+function initSidebar() {
+  const links = document.querySelectorAll('#sidebar-menu a');
   const pages = document.querySelectorAll('.page-content');
 
-  window.showPage = function (pageId) {
-    pages.forEach(p => p.style.display = 'none');
-    const page = document.getElementById(`page-${pageId}`);
-    if (page) page.style.display = 'block';
+  window.showPage = page => {
+    pages.forEach(p => (p.style.display = 'none'));
+    document.getElementById(`page-${page}`).style.display = 'block';
 
-    menuLinks.forEach(link => {
-      link.classList.toggle('active', link.dataset.page === pageId);
-    });
+    links.forEach(l =>
+      l.classList.toggle('active', l.dataset.page === page)
+    );
 
-    if (pageId === 'profil') {
-      loadProfilLengkap(); // ⬅️ langsung load dari SHEET
-    }
+    if (page === 'profil' && !profilLoaded) loadProfilLengkap();
   };
 
-  menuLinks.forEach(link => {
-    link.addEventListener('click', e => {
+  links.forEach(link => {
+    link.onclick = e => {
       e.preventDefault();
       showPage(link.dataset.page);
-    });
+    };
   });
+
+  showPage('beranda');
 }
 
 /* =====================================================
-   DASHBOARD (BERANDA)
+   DASHBOARD
 ===================================================== */
-function displayUserInfo() {
-  const el = document.getElementById("info-pegawai");
-  if (!el) return;
-
+function renderDashboard() {
   document.getElementById('nama-pegawai').textContent =
     userData.nama_pegawai || '-';
-
   document.getElementById('status-pegawai').textContent = 'AKTIF';
 
-  el.innerHTML = `
-    <div class="row mb-1">
-      <div class="col-4 fw-bold">Nama</div>
-      <div class="col-8">${userData.nama_pegawai || '-'}</div>
-    </div>
-    <div class="row mb-1">
-      <div class="col-4 fw-bold">Status</div>
-      <div class="col-8">${userData.status_kepegawaian || '-'}</div>
-    </div>
-    <div class="row mb-1">
-      <div class="col-4 fw-bold">Sub Bidang</div>
-      <div class="col-8">${userData.sub_bidang || '-'}</div>
-    </div>
-    <div class="row mb-1">
-      <div class="col-4 fw-bold">Role</div>
-      <div class="col-8">${userData.role || '-'}</div>
-    </div>
+  document.getElementById('info-pegawai').innerHTML = `
+    <div class="row mb-1"><div class="col-4 fw-bold">Nama</div><div class="col-8">${userData.nama_pegawai || '-'}</div></div>
+    <div class="row mb-1"><div class="col-4 fw-bold">Status</div><div class="col-8">${userData.status_kepegawaian || '-'}</div></div>
+    <div class="row mb-1"><div class="col-4 fw-bold">Sub Bidang</div><div class="col-8">${userData.sub_bidang || '-'}</div></div>
+    <div class="row mb-1"><div class="col-4 fw-bold">Role</div><div class="col-8">${userData.role || '-'}</div></div>
   `;
 
-  // ==== FOTO PEGAWAI ====
-  const fotoEl = document.getElementById('foto-pegawai');
-  if (fotoEl) {
-    fotoEl.src = userData.foto_url + '?t=' + new Date().getTime();
-  }
-
-  // ⬅️ FIX 2: pasang event upload SETELAH elemen ada
-  initUploadFoto();
+  setFoto('foto-pegawai', userData.foto_url);
 }
 
 /* =====================================================
-   PROFIL LENGKAP (FROM SHEET data_pegawai)
+   PROFIL LENGKAP
 ===================================================== */
 function loadProfilLengkap() {
-   const profilFoto = document.getElementById('profil-foto');
-if (profilFoto && d.foto_url) {
-  profilFoto.src = d.foto_url + '?t=' + Date.now();
-}
-   
-  if (!userData.id_pegawai) {
-    console.error('ID Pegawai TIDAK ADA:', userData);
-    Swal.fire(
-      'Error',
-      'ID Pegawai tidak ditemukan di session. Silakan logout dan login ulang.',
-      'error'
-    );
-    return;
-  }
+  if (!userData.id_pegawai) return;
 
-  // ✅ Swal loading HANYA SAAT PERTAMA
-  if (!profilSudahDimuat) {
-    Swal.fire({
-      title: 'Memuat Profil',
-      text: 'Mohon tunggu...',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
-  }
+  showSkeletonProfil(true);
 
-  fetch(`${WEB_APP_URL}?action=getProfilPegawai&id_pegawai=${encodeURIComponent(userData.id_pegawai)}`)
-    .then(res => res.json())
-    .then(res => {
+  fetch(
+    `${WEB_APP_URL}?action=getProfilPegawai&id_pegawai=${encodeURIComponent(
+      userData.id_pegawai
+    )}`
+  )
+    .then(r => r.json())
+    .then(r => {
+      if (!r.success) return;
 
-      if (!res.success) {
-        Swal.fire('Error', res.message || 'Gagal memuat profil', 'error');
-        return;
-      }
+      const d = r.data;
+      profilLoaded = true;
 
-      const d = res.data;
-
-      /* ===== HEADER ===== */
       document.getElementById('profil-nama-text').textContent = d.nama || '-';
-      document.getElementById('profil-nip-text').textContent = d.nip ? `NIP: ${d.nip}` : 'NIP: -';
-      document.getElementById('profil-status-aktif').textContent = d.status_aktif || '-';
+      document.getElementById('profil-nip-text').textContent =
+        d.nip ? `NIP: ${d.nip}` : 'NIP: -';
+      document.getElementById('profil-status-aktif').textContent =
+        d.status_aktif || '-';
 
-      /* ===== KEPEGAWAIAN ===== */
-      setVal('profil-status', d.status_kepegawaian);
-      setVal('profil-golongan', d.golongan_pangkat);
-      setVal('profil-jenis-jabatan', d.jenis_jabatan);
-      setVal('profil-jabatan', d.jabatan);
-      setVal('profil-subbid', d.sub_bidang);
+      setFoto('profil-foto', d.foto_url);
 
-      /* ===== PRIBADI ===== */
-      setVal('profil-tempat-lahir', d.tempat_lahir);
-      setVal('profil-tanggal-lahir', d.tanggal_lahir);
-      setVal('profil-jenis-kelamin', d.jenis_kelamin);
-      setVal('profil-pendidikan', d.pendidikan_terakhir);
-      setVal('profil-prodi', d.program_studi);
-      setVal('profil-tahun-lulus', d.tahun_lulus);
+      fill('profil-status', d.status_kepegawaian);
+      fill('profil-golongan', d.golongan_pangkat);
+      fill('profil-jenis-jabatan', d.jenis_jabatan);
+      fill('profil-jabatan', d.jabatan);
+      fill('profil-subbid', d.sub_bidang);
 
-      /* ===== KONTAK ===== */
-      setVal('profil-nohp', d.no_hp);
-      setVal('profil-email', d.email);
-      document.getElementById('profil-alamat').value = d.alamat_lengkap || '';
+      fill('profil-tempat-lahir', d.tempat_lahir);
+      fill('profil-tanggal-lahir', d.tanggal_lahir);
+      fill('profil-jenis-kelamin', d.jenis_kelamin);
+      fill('profil-pendidikan', d.pendidikan_terakhir);
+      fill('profil-prodi', d.program_studi);
+      fill('profil-tahun-lulus', d.tahun_lulus);
 
-      // ✅ Tutup Swal & tandai sudah dimuat
-      if (!profilSudahDimuat) {
-        Swal.close();
-        profilSudahDimuat = true;
+      fill('profil-nohp', d.no_hp);
+      fill('profil-email', d.email);
+      document.getElementById('profil-alamat').value =
+        d.alamat_lengkap || '';
+
+      showSkeletonProfil(false);
+    });
+}
+
+/* =====================================================
+   FOTO PROFIL + CROP
+===================================================== */
+function initUploadFoto() {
+  const btn = document.getElementById('btn-edit-foto');
+  const input = document.getElementById('input-foto');
+
+  if (!btn || !input) return;
+
+  btn.onclick = () => input.click();
+
+  input.onchange = () => {
+    const file = input.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+
+    openCropper(file);
+  };
+}
+
+function openCropper(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    Swal.fire({
+      title: 'Potong Foto',
+      html: `<img id="crop-img" src="${reader.result}" style="max-width:100%">`,
+      showCancelButton: true,
+      confirmButtonText: 'Simpan',
+      didOpen: () => {
+        cropper = new Cropper(document.getElementById('crop-img'), {
+          aspectRatio: 1,
+          viewMode: 1
+        });
       }
-    })
-    .catch(err => {
-      console.error(err);
-      Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+    }).then(res => {
+      if (res.isConfirmed) {
+        const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
+        uploadFoto(canvas.toDataURL());
+      }
+      cropper.destroy();
+      cropper = null;
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function uploadFoto(base64) {
+  const fd = new FormData();
+  fd.append('action', 'uploadFoto');
+  fd.append('id_pegawai', userData.id_pegawai);
+  fd.append('base64', base64);
+
+  fetch(WEB_APP_URL, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(r => {
+      if (!r.success) return;
+
+      userData.foto_url = r.foto_url;
+      localStorage.setItem('sikawan_session', JSON.stringify(userData));
+
+      setFoto('foto-pegawai', r.foto_url);
+      setFoto('profil-foto', r.foto_url);
+    });
+}
+
+/* =====================================================
+   SKELETON LOADER
+===================================================== */
+function showSkeletonProfil(show) {
+  document
+    .querySelectorAll('#page-profil input, #page-profil textarea')
+    .forEach(el => {
+      el.style.visibility = show ? 'hidden' : 'visible';
     });
 }
 
 /* =====================================================
    HELPER
 ===================================================== */
-function setVal(id, val) {
+function fill(id, val) {
   const el = document.getElementById(id);
   if (el) el.value = val || '-';
+}
+
+function setFoto(id, url) {
+  const img = document.getElementById(id);
+  if (img) {
+    img.src = url ? `${url}?t=${Date.now()}` : 'https://via.placeholder.com/120';
+  }
 }
 
 /* =====================================================
    LOGOUT
 ===================================================== */
-function logout() {
-  Swal.fire({
-    title: 'Logout?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Ya'
-  }).then(r => {
-    if (r.isConfirmed) {
-      localStorage.clear();
-      window.location.href = 'login.html';
-    }
-  });
-}
-
-function setLogoutButton() {
-  document.getElementById('logout-button')?.addEventListener('click', logout);
-}
-/* =====================================================
-   UPLOAD FOTO PROFIL
-===================================================== */
-function initUploadFoto() {
-  const inputFoto = document.getElementById('input-foto');
-  const fotoEl   = document.getElementById('foto-pegawai');
-  const btnEdit  = document.getElementById('btn-edit-foto');
-
-  if (!inputFoto || !fotoEl || !btnEdit) return;
-
-  // Klik icon pensil
-  btnEdit.onclick = () => {
-    if (userData.foto_url) {
-      Swal.fire({
-        title: 'Ganti foto profil?',
-        text: 'Foto lama akan diganti',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, ganti'
-      }).then(r => {
-        if (r.isConfirmed) inputFoto.click();
-      });
-    } else {
-      inputFoto.click();
-    }
-  };
-
-  // Saat file dipilih
-  inputFoto.onchange = function () {
-    const file = this.files[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      Swal.fire('Error', 'File harus berupa gambar', 'error');
-      return;
-    }
-
-    Swal.fire({
-      title: 'Mengunggah Foto...',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading()
-    });
-
-    const reader = new FileReader();
-    reader.onload = function () {
-      const formData = new FormData();
-      formData.append('action', 'uploadFoto');
-      formData.append('id_pegawai', userData.id_pegawai);
-      formData.append('base64', reader.result);
-
-      fetch(WEB_APP_URL, {
-        method: 'POST',
-        body: formData
-      })
-        .then(res => res.json())
-        .then(res => {
-          if (!res.success) {
-            Swal.fire('Gagal', res.message || 'Upload gagal', 'error');
-            return;
-          }
-
-          fotoEl.src = userData.foto_url + '?t=' + new Date().getTime();
-          userData.foto_url = res.foto_url;
-          localStorage.setItem('sikawan_session', JSON.stringify(userData));
-
-          Swal.fire('Berhasil', 'Foto profil diperbarui', 'success');
-        })
-        .catch(() => {
-          Swal.fire('Error', 'Gagal terhubung ke server', 'error');
-        });
-    };
-
-    reader.readAsDataURL(file);
-  };
-}
+document.getElementById('logout-button')?.addEventListener('click', () => {
+  localStorage.clear();
+  location.href = 'login.html';
+});
