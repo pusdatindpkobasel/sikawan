@@ -1,8 +1,6 @@
 /* =====================================================
-   SIKAWAN - SCRIPT.JS (FIXED & STABLE)
-   - Tidak mengubah HTML
-   - Tidak mengubah menu
-   - Perbaikan error JS
+   SIKAWAN - SCRIPT.JS (STABLE & SAFE)
+   ❗ TIDAK MERUSAK dashboard.html
 ===================================================== */
 
 const WEB_APP_URL =
@@ -32,21 +30,21 @@ document.addEventListener('DOMContentLoaded', () => {
   userData.id_pegawai =
     userData.id_pegawai || userData.idPegawai || userData.id || null;
 
-  initSidebar();
+  setupNavigation();
   renderDashboard();
   initUploadFoto();
 });
 
-/* ================= SIDEBAR (FIX UX MOBILE) ================= */
-function initSidebar() {
+/* ================= NAVIGATION (AMAN) ================= */
+function setupNavigation() {
   const sidebar = document.getElementById('sidebar');
-  const hamburger = document.getElementById('hamburger');
+  const content = document.getElementById('content');
   const links = document.querySelectorAll('#sidebar-menu a');
   const pages = document.querySelectorAll('.page-content');
-  const content = document.getElementById('content');
 
   function showPage(page) {
     pages.forEach(p => (p.style.display = 'none'));
+
     const target = document.getElementById(`page-${page}`);
     if (target) target.style.display = 'block';
 
@@ -69,11 +67,7 @@ function initSidebar() {
     });
   });
 
-  hamburger?.addEventListener('click', () => {
-    sidebar.classList.toggle('show');
-  });
-
-  // klik konten → tutup sidebar
+  // klik area konten → tutup sidebar (mobile UX)
   content.addEventListener('click', () => {
     sidebar.classList.remove('show');
   });
@@ -83,12 +77,16 @@ function initSidebar() {
 
 /* ================= DASHBOARD ================= */
 function renderDashboard() {
-  document.getElementById('nama-pegawai').textContent =
-    userData.nama_pegawai || '-';
+  const namaEl = document.getElementById('nama-pegawai');
+  const statusEl = document.getElementById('status-pegawai');
+  const infoEl = document.getElementById('info-pegawai');
 
-  document.getElementById('status-pegawai').textContent = 'AKTIF';
+  if (!namaEl || !infoEl) return;
 
-  document.getElementById('info-pegawai').innerHTML = `
+  namaEl.textContent = userData.nama_pegawai || '-';
+  statusEl.textContent = 'AKTIF';
+
+  infoEl.innerHTML = `
     <div class="row mb-1">
       <div class="col-4 fw-bold">Nama</div>
       <div class="col-8">${userData.nama_pegawai || '-'}</div>
