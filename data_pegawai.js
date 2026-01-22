@@ -7,17 +7,40 @@ let pegawaiData = [];
 function initDataPegawai() {
   if (pegawaiData.length) return;
 
-  fetch(`${WEB_APP_URL}?action=getPegawaiAll`)
-    .then(res => res.json())
-    .then(res => {
-      if (!res.success) return;
+  fetch(`${WEB_APP_URL}?action=getPegawai`)
+    .then(res => res.json ? res.json() : res) // antisipasi JSONP
+    .then(data => {
 
-      pegawaiData = res.data;
+      // ⛔ jika masih format array (bukan object)
+      if (Array.isArray(data)) {
+        pegawaiData = data.map(row => ({
+          id_pegawai: row[0],
+          nama_pegawai: row[1],
+          nip: row[2],
+          jenis_jabatan: row[3],
+          jabatan: row[4],
+          golongan_pangkat: row[5],
+          sub_bidang: row[6],
+          status_kepegawaian: row[7],
+          pendidikan_terakhir: row[8],
+          program_studi: row[9],
+          tahun_lulus: row[10],
+          no_hp: row[11],
+          email: row[12],
+          alamat_lengkap: row[13],
+          foto_url: row[14] || ''
+        }));
+      } else if (data.success) {
+        pegawaiData = data.data;
+      }
+
       populateFilter();
       renderTable(pegawaiData);
+    })
+    .catch(err => {
+      console.error('Gagal load data pegawai:', err);
     });
 }
-
 /* =========================
    RENDER TABLE
 ========================= */
