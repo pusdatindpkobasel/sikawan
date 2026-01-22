@@ -4,7 +4,7 @@
 ===================================================== */
 
 const WEB_APP_URL =
-  'https://script.google.com/macros/s/AKfycbwqgrp-WPmhpaXaaEZVDPNfLTZyqvJEcxIqa3nTNY62BK5Ip8DT20dQE-bXphTAtkMz/exec';
+  'https://script.google.com/macros/s/AKfycbzPmmaZjbMNWgG36v9uR8wJhi3Zj04geYQeFgtwhE-ePeXlp8pq8ka481bU1u0c3VJh/exec';
 
 let userData = {};
 let profilLoaded = false;
