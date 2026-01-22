@@ -95,6 +95,74 @@
     </div>
   </div>
 </div>
+<!-- MODAL EDIT PEGAWAI -->
+  <div class="modal fade" id="modalEditPegawai" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Data Pegawai</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="form-edit-pegawai" class="row g-3">
+
+          <input type="hidden" id="edit-id-pegawai">
+
+          <div class="col-md-6">
+            <label class="form-label">Nama</label>
+            <input id="edit-nama" class="form-control" readonly>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">NIP</label>
+            <input id="edit-nip" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Status Kepegawaian</label>
+            <select id="edit-status" class="form-select">
+              <option>PNS</option>
+              <option>PPPK</option>
+              <option>PPPK PARUH WAKTU</option>
+              <option>PJLP</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Golongan</label>
+            <input id="edit-golongan" class="form-control">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Jenis Jabatan</label>
+            <select id="edit-jenis-jabatan" class="form-select">
+              <option>Struktural</option>
+              <option>Fungsional</option>
+              <option>Pelaksana</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Jabatan</label>
+            <input id="edit-jabatan" class="form-control">
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label">Sub Bidang</label>
+            <input id="edit-subbid" class="form-control">
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button class="btn btn-primary" onclick="simpanEditPegawai()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
 </section>
  <!-- PROFIL -->
   <section id="page-profil" class="page-content" style="display:none"> 
