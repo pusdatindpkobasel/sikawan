@@ -38,43 +38,43 @@ function initDataPegawai() {
 ========================= */
 function renderTable(data) {
   const tbody = document.getElementById('pegawai-table');
-  if (!tbody) return;
-
   tbody.innerHTML = '';
 
-  if (!data.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="9" class="text-center text-muted">
-          Tidak ada data pegawai
-        </td>
-      </tr>
-    `;
-    return;
-  }
+  const isAdmin = userData?.role === 'ADMIN';
 
   data.forEach(p => {
-    tbody.insertAdjacentHTML('beforeend', `
+    tbody.innerHTML += `
       <tr>
         <td class="text-center">
           <i class="bi bi-person-circle fs-4 text-secondary"></i>
         </td>
-        <td>${p.nama_pegawai || '-'}</td>
+        <td>${p.nama_pegawai}</td>
         <td>${p.nip || '-'}</td>
-        <td>${p.jenis_jabatan || '-'}</td>
-        <td>${p.jabatan || '-'}</td>
+        <td>${p.jenis_jabatan}</td>
+        <td>${p.jabatan}</td>
         <td>${p.golongan_pangkat || '-'}</td>
-        <td>${p.sub_bidang || '-'}</td>
-        <td>${p.status_kepegawaian || '-'}</td>
-        <td>
-          <button
-            class="btn btn-sm btn-outline-primary"
+        <td>${p.sub_bidang}</td>
+        <td>${p.status_kepegawaian}</td>
+        <td class="text-nowrap">
+          <button class="btn btn-sm btn-outline-primary me-1"
             onclick="showDetailPegawai('${p.id_pegawai}')">
             Detail
           </button>
+
+          ${isAdmin ? `
+            <button class="btn btn-sm btn-outline-warning me-1"
+              onclick="showEditPegawai('${p.id_pegawai}')">
+              Edit
+            </button>
+
+            <button class="btn btn-sm btn-outline-danger"
+              onclick="nonaktifkanPegawai('${p.id_pegawai}')">
+              Nonaktif
+            </button>
+          ` : ``}
         </td>
       </tr>
-    `);
+    `;
   });
 }
 
