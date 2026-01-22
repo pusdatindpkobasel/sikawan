@@ -58,6 +58,7 @@ function setupNavigation() {
     if (page === 'profil' && !profilLoaded) {
       loadProfilLengkap();
     }
+     if (page === 'data-pegawai') initDataPegawai();
   }
 
   links.forEach(link => {
