@@ -162,3 +162,47 @@ function setText(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val || '-';
 }
+/* =========================
+   MODAL EDIT PEGAWAI
+========================= */
+function showEditPegawai(id) {
+  const p = pegawaiData.find(x => x.id_pegawai === id);
+  if (!p) return;
+
+  document.getElementById('edit-id-pegawai').value = p.id_pegawai;
+  document.getElementById('edit-nama').value = p.nama_pegawai;
+  document.getElementById('edit-nip').value = p.nip || '';
+  document.getElementById('edit-status').value = p.status_kepegawaian;
+  document.getElementById('edit-golongan').value = p.golongan_pangkat || '';
+  document.getElementById('edit-jenis-jabatan').value = p.jenis_jabatan;
+  document.getElementById('edit-jabatan').value = p.jabatan;
+  document.getElementById('edit-subbid').value = p.sub_bidang;
+
+  new bootstrap.Modal(
+    document.getElementById('modalEditPegawai')
+  ).show();
+}
+/* =========================
+   NONAKTIF PEGAWAI
+========================= */
+function nonaktifkanPegawai(id) {
+  const p = pegawaiData.find(x => x.id_pegawai === id);
+  if (!p) return;
+
+  Swal.fire({
+    title: 'Nonaktifkan Pegawai?',
+    text: `Pegawai ${p.nama_pegawai} akan dinonaktifkan`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, Nonaktifkan'
+  }).then(res => {
+    if (!res.isConfirmed) return;
+
+    // sementara dummy (nanti sambung ke GAS)
+    p.status_kepegawaian = 'NONAKTIF';
+    renderTable(pegawaiData);
+
+    Swal.fire('Berhasil', 'Pegawai dinonaktifkan', 'success');
+  });
+}
+
